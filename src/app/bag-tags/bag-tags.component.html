@@ -1,0 +1,159 @@
+<!-- Header -->
+<div class="app-header">
+  <div class="header-top">
+    <div class="brand-row">
+      <div class="brand-icon">🏷</div>
+      <span class="brand-name">Bag Tags</span>
+    </div>
+    <div class="row-pill">
+      <span class="row-pill-num">{{ filledCount }}</span><span> tags</span>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Tags Button -->
+<div class="bt-action-bar">
+  <button class="bt-assign-btn" (click)="assignTags()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+      <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+      <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+    </svg>
+    Assign Tags
+  </button>
+</div>
+
+<!-- Column Headers -->
+<div class="bt-col-headers">
+  <div></div>
+  <div class="bt-col-hd">Player</div>
+  <div class="bt-col-hd bt-col-hd-score">Score</div>
+  <div class="bt-col-hd bt-col-hd-tag">Tag</div>
+</div>
+
+<!-- List -->
+<div class="bt-list-area">
+  <div class="bt-rows">
+    <div
+      *ngFor="let row of rows; let i = index; trackBy: trackById"
+      class="bt-row"
+      [class.has-data]="row.value"
+    >
+      <div class="bt-idx">{{ i + 1 }}</div>
+
+      <div class="bt-cell-wrap">
+        <input
+          class="bt-input"
+          type="text"
+          [(ngModel)]="row.value"
+          placeholder="—"
+          (keydown)="onKeyDown($event, i)"
+        />
+        <button
+          class="bt-clear"
+          [class.visible]="row.value"
+          (click)="clearCell(row)"
+          tabindex="-1"
+          aria-label="Clear"
+        >
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="bt-score-wrap">
+        <input
+          class="bt-score-input"
+          type="number"
+          inputmode="numeric"
+          [(ngModel)]="row.score"
+          placeholder="—"
+        />
+      </div>
+
+      <div class="bt-num">
+        <div
+          class="bt-tag-num"
+          [class.custom]="isCustom(row)"
+          (click)="openEditor(row, i, $event.target)"
+        >{{ getDisplayNum(row, i) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-footer-btns">
+    <button class="footer-btn footer-btn-add" (click)="addRow()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add tag
+    </button>
+    <button class="footer-btn footer-btn-del" [disabled]="rows.length <= 1" (click)="deleteLastRow()">
+      Delete last
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        <path d="M10 11v6"/><path d="M14 11v6"/>
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Tag Number Editor Popup -->
+<div
+  *ngIf="editorOpenId !== null"
+  class="bt-num-editor"
+  [style.top.px]="editorTop"
+  [style.left.px]="editorLeft"
+>
+  <div class="bt-num-editor-label">Tag Number</div>
+  <div class="bt-num-editor-controls">
+    <div class="bt-num-spin" (click)="spinNum(-1)">−</div>
+    <input class="bt-num-val" type="number" min="1" max="999" [(ngModel)]="editorValue" />
+    <div class="bt-num-spin" (click)="spinNum(1)">+</div>
+  </div>
+  <div class="bt-num-editor-footer">
+    <button class="bt-num-action bt-num-cancel" (click)="closeEditor()">Cancel</button>
+    <button class="bt-num-action bt-num-reset" (click)="resetNum()">Auto</button>
+    <button class="bt-num-action bt-num-confirm" (click)="confirmNum()">Set</button>
+  </div>
+</div>
+
+<!-- Results Modal -->
+<div
+  *ngIf="showResults"
+  class="bt-results-overlay"
+  (click)="closeResults()"
+>
+  <div class="bt-results-sheet" (click)="$event.stopPropagation()">
+    <div class="bt-results-handle"></div>
+    <div class="bt-results-header">
+      <span class="bt-results-title">New Tag Assignments</span>
+      <button class="bt-results-close" (click)="closeResults()">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="bt-results-col-hds">
+      <div class="bt-res-hd">#</div>
+      <div class="bt-res-hd player-hd">Player</div>
+      <div class="bt-res-hd">Score</div>
+      <div class="bt-res-hd">Old</div>
+      <div class="bt-res-hd">New</div>
+    </div>
+    <div class="bt-results-list">
+      <div
+        *ngFor="let r of results; let i = index"
+        class="bt-result-row"
+      >
+        <div class="bt-res-rank">{{ i + 1 }}</div>
+        <div class="bt-res-name">{{ r.player.value }}</div>
+        <div class="bt-res-cell">{{ r.score }}</div>
+        <div class="bt-res-cell old-tag">{{ r.oldTag }}</div>
+        <div class="bt-res-new-tag" [style.color]="r.changed ? 'var(--accent)' : 'var(--text-muted)'">{{ r.newTag }}</div>
+      </div>
+    </div>
+  </div>
+</div>
