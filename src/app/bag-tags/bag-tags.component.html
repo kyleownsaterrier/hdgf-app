@@ -26,8 +26,8 @@
 <div class="bt-col-headers">
   <div></div>
   <div class="bt-col-hd">Player</div>
-  <div class="bt-col-hd bt-col-hd-score">Score</div>
   <div class="bt-col-hd bt-col-hd-tag">Tag</div>
+  <div class="bt-col-hd bt-col-hd-score">Score</div>
 </div>
 
 <!-- List -->
@@ -61,22 +61,26 @@
         </button>
       </div>
 
-      <div class="bt-score-wrap">
+      <div class="bt-num">
         <input
-          class="bt-score-input"
-          type="number"
+          class="bt-tag-input"
+          type="text"
           inputmode="numeric"
-          [(ngModel)]="row.score"
-          placeholder="—"
+          [value]="getDisplayNum(row, i)"
+          (change)="setTagNum(row, i, $any($event.target).value)"
+          (blur)="validateTagNum(row, i, $any($event.target))"
+          aria-label="Tag number"
         />
       </div>
 
-      <div class="bt-num">
-        <div
-          class="bt-tag-num"
-          [class.custom]="isCustom(row)"
-          (click)="openEditor(row, i, $event.target)"
-        >{{ getDisplayNum(row, i) }}</div>
+      <div class="bt-score-wrap">
+        <input
+          class="bt-score-input"
+          type="text"
+          inputmode="decimal"
+          [(ngModel)]="row.score"
+          placeholder="—"
+        />
       </div>
     </div>
   </div>
@@ -97,26 +101,6 @@
         <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
       </svg>
     </button>
-  </div>
-</div>
-
-<!-- Tag Number Editor Popup -->
-<div
-  *ngIf="editorOpenId !== null"
-  class="bt-num-editor"
-  [style.top.px]="editorTop"
-  [style.left.px]="editorLeft"
->
-  <div class="bt-num-editor-label">Tag Number</div>
-  <div class="bt-num-editor-controls">
-    <div class="bt-num-spin" (click)="spinNum(-1)">−</div>
-    <input class="bt-num-val" type="number" min="1" max="999" [(ngModel)]="editorValue" />
-    <div class="bt-num-spin" (click)="spinNum(1)">+</div>
-  </div>
-  <div class="bt-num-editor-footer">
-    <button class="bt-num-action bt-num-cancel" (click)="closeEditor()">Cancel</button>
-    <button class="bt-num-action bt-num-reset" (click)="resetNum()">Auto</button>
-    <button class="bt-num-action bt-num-confirm" (click)="confirmNum()">Set</button>
   </div>
 </div>
 

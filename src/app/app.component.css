@@ -26,6 +26,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+/* ── Desktop: render as a phone mockup ────────────── */
 .phone-shell {
   position: relative;
   width: 393px; height: 852px;
@@ -54,6 +55,26 @@
   position: absolute; right: -5px; top: 160px;
   width: 4px; height: 60px;
   background: #1a1a22; border-radius: 0 2px 2px 0;
+}
+
+/* ── Mobile: fill the real screen ────────────────── */
+@media (max-width: 430px), (max-height: 870px) {
+  :host {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .phone-shell {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+  }
+  .phone-shell::before,
+  .phone-shell::after { display: none; }
+  .dynamic-island { display: none; }
+  .status-bar { display: none; }
+  .home-area { display: none; }
 }
 
 .dynamic-island {
@@ -95,11 +116,12 @@
 /* Tab Bar */
 .tab-bar {
   display: flex;
-  background: rgba(15,15,17,0.92);
+  background: rgba(15,15,17,0.96);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
-  padding: 6px 0 2px;
+  padding: 6px 0 max(2px, env(safe-area-inset-bottom, 0px));
 }
 .tab-btn {
   flex: 1;
@@ -112,6 +134,7 @@
   text-decoration: none;
   transition: color 0.15s;
   -webkit-user-select: none; user-select: none;
+  min-height: 44px;
 }
 .tab-btn.active { color: var(--accent); }
 .tab-btn:active { opacity: 0.7; }

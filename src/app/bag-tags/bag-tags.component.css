@@ -42,7 +42,7 @@
 
 /* Column headers */
 .bt-col-headers {
-  display: grid; grid-template-columns: 30px 1fr 70px 44px;
+  display: grid; grid-template-columns: 30px 1fr 44px 70px;
   padding: 0 12px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -65,7 +65,7 @@
 
 /* Row */
 .bt-row {
-  display: grid; grid-template-columns: 30px 1fr 70px 44px;
+  display: grid; grid-template-columns: 30px 1fr 44px 70px;
   align-items: center;
   border-bottom: 1px solid var(--border); min-height: 52px;
 }
@@ -119,30 +119,24 @@
 .bt-score-input::placeholder { color: var(--text-dim); }
 .bt-score-input:focus { border-color: var(--accent); background: var(--accent-glow); }
 /* hide number spinners */
-.bt-score-input::-webkit-outer-spin-button,
-.bt-score-input::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-/* Tag badge */
+/* Tag badge input */
 .bt-num {
   display: flex; align-items: center; justify-content: center; padding: 0 4px; height: 100%;
 }
-.bt-tag-num {
-  width: 32px; height: 32px; border-radius: 9px;
+.bt-tag-input {
+  width: 36px; height: 36px; border-radius: 9px;
   background: var(--surface-2); border: 1px solid var(--border);
   font-family: var(--font-mono); font-size: 12px; font-weight: 600;
-  color: var(--text-muted);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.15s;
-  -webkit-user-select: none; user-select: none;
+  color: var(--text-muted); text-align: center; outline: none;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
-.bt-tag-num.custom {
-  background: var(--accent-glow);
-  border-color: rgba(200,241,53,0.35);
-  color: var(--accent);
+.bt-tag-input:focus {
+  border-color: var(--accent); background: var(--accent-glow); color: var(--accent);
 }
-.bt-tag-num:active { transform: scale(0.9); }
-
-/* Footer */
+.bt-tag-input::-webkit-outer-spin-button,
+.bt-tag-input::-webkit-inner-spin-button { -webkit-appearance: none; }
 .table-footer-btns { display: flex; border-top: 1px solid var(--border); }
 .footer-btn {
   display: flex; align-items: center; gap: 7px;
@@ -157,52 +151,6 @@
 .footer-btn-del { border-left: 1px solid var(--border); justify-content: flex-end; }
 .footer-btn-del:active { color: var(--danger); }
 .footer-btn-del:disabled { opacity: 0.25; pointer-events: none; }
-
-/* Tag number editor popup */
-.bt-num-editor {
-  position: absolute; z-index: 200;
-  background: var(--surface-2); border: 1px solid var(--border-light);
-  border-radius: 14px; padding: 12px;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6); min-width: 148px;
-}
-.bt-num-editor-label {
-  font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.12em; color: var(--text-muted);
-}
-.bt-num-editor-controls { display: flex; align-items: center; gap: 8px; }
-.bt-num-spin {
-  width: 32px; height: 32px; border-radius: 8px;
-  background: var(--surface-3); border: 1px solid var(--border);
-  color: var(--text); font-size: 18px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.12s; -webkit-user-select: none; user-select: none;
-}
-.bt-num-spin:active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
-.bt-num-val {
-  width: 44px; height: 36px;
-  background: var(--surface-3); border: 1.5px solid var(--border);
-  border-radius: 8px; color: var(--text);
-  font-family: var(--font-mono); font-size: 16px; font-weight: 600;
-  text-align: center; outline: none; -webkit-appearance: none; appearance: none;
-}
-.bt-num-val:focus { border-color: var(--accent); }
-.bt-num-editor-footer { display: flex; gap: 6px; width: 100%; }
-.bt-num-action {
-  flex: 1; padding: 8px; border-radius: 8px;
-  font-family: var(--font-display); font-size: 11px; font-weight: 700;
-  cursor: pointer; border: 1px solid var(--border); transition: all 0.12s;
-}
-.bt-num-cancel { background: transparent; color: var(--text-muted); }
-.bt-num-cancel:active { color: var(--danger); border-color: var(--danger); }
-.bt-num-confirm { background: var(--accent); border-color: var(--accent); color: #0c0c0f; }
-.bt-num-confirm:active { background: var(--accent-dim); }
-.bt-num-reset {
-  padding: 8px; border-radius: 8px; font-family: var(--font-mono); font-size: 10px;
-  cursor: pointer; border: 1px solid var(--border);
-  background: transparent; color: var(--text-dim); transition: all 0.12s;
-}
-.bt-num-reset:active { color: var(--danger); border-color: var(--danger); }
 
 /* Results modal */
 .bt-results-overlay {
