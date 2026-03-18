@@ -77,36 +77,8 @@
   .home-area { display: none; }
 }
 
-.dynamic-island {
-  position: absolute; top: 13px; left: 50%; transform: translateX(-50%);
-  width: 126px; height: 37px;
-  background: #000; border-radius: 20px; z-index: 100;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-.di-camera {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: #141414; border: 1.5px solid #1d1d1d; position: relative;
-}
-.di-camera::after {
-  content: ''; position: absolute; top: 3px; left: 3px;
-  width: 4px; height: 4px; border-radius: 50%;
-  background: #0a0a10; box-shadow: 0 0 3px rgba(80,180,255,0.3);
-}
-.di-sensor {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #111; border: 1px solid #1c1c1c;
-}
-
-.status-bar {
-  height: 59px; flex-shrink: 0;
-  display: flex; align-items: flex-end; justify-content: space-between;
-  padding: 0 28px 8px; color: var(--text);
-}
-.status-time {
-  font-family: var(--font-display);
-  font-size: 15px; font-weight: 700; letter-spacing: -0.02em;
-}
-.status-icons { display: flex; align-items: center; gap: 7px; }
+.dynamic-island { display: none; }
+.status-bar { display: none; }
 
 .app-screen {
   flex: 1; display: flex; flex-direction: column;
@@ -127,9 +99,9 @@
   flex: 1;
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   background: transparent; border: none; cursor: pointer;
-  padding: 6px 0 4px;
+  padding: 8px 0 6px;
   color: var(--text-dim);
-  font-family: var(--font-display); font-size: 10px; font-weight: 600;
+  font-family: var(--font-display); font-size: 12px; font-weight: 600;
   letter-spacing: 0.02em;
   text-decoration: none;
   transition: color 0.15s;

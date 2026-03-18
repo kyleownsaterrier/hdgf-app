@@ -74,6 +74,13 @@
       </div>
 
       <div class="bt-score-wrap">
+        <button
+          class="bt-sign-btn"
+          (click)="toggleSign(row)"
+          [class.negative]="isNegative(row.score)"
+          tabindex="-1"
+          aria-label="Toggle sign"
+        >{{ isNegative(row.score) ? '−' : '+' }}</button>
         <input
           class="bt-score-input"
           type="text"

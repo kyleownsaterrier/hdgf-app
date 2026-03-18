@@ -50,6 +50,16 @@ export class BagTagsComponent implements OnInit {
     return row.tagNum !== null ? row.tagNum : index + 1;
   }
 
+  isNegative(score: string): boolean {
+    return score.trim().startsWith('-');
+  }
+
+  toggleSign(row: BagTagRow): void {
+    const s = row.score.trim();
+    if (!s || s === '—') return;
+    row.score = s.startsWith('-') ? s.slice(1) : '-' + s;
+  }
+
   setTagNum(row: BagTagRow, index: number, val: string): void {
     const n = parseInt(val, 10);
     if (!isNaN(n) && n > 0) row.tagNum = n;
