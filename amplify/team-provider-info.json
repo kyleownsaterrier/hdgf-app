@@ -1,15 +1,15 @@
 {
-  "dev": {
+  "main": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-hdgfapp-dev-84f3f-authRole",
-      "UnauthRoleArn": "arn:aws:iam::220927856021:role/amplify-hdgfapp-dev-84f3f-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::220927856021:role/amplify-hdgfapp-dev-84f3f-authRole",
-      "Region": "ap-south-1",
-      "DeploymentBucketName": "amplify-hdgfapp-dev-84f3f-deployment",
-      "UnauthRoleName": "amplify-hdgfapp-dev-84f3f-unauthRole",
-      "StackName": "amplify-hdgfapp-dev-84f3f",
-      "StackId": "arn:aws:cloudformation:ap-south-1:220927856021:stack/amplify-hdgfapp-dev-84f3f/4a7d13d0-225d-11f1-b0b1-06a39999dfcd",
-      "AmplifyAppId": "d26xva5c3480ep"
+      "AuthRoleName": "amplify-hdgfapp-main-2f0f3-authRole",
+      "UnauthRoleArn": "arn:aws:iam::220927856021:role/amplify-hdgfapp-main-2f0f3-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::220927856021:role/amplify-hdgfapp-main-2f0f3-authRole",
+      "Region": "us-west-1",
+      "DeploymentBucketName": "amplify-hdgfapp-main-2f0f3-deployment",
+      "UnauthRoleName": "amplify-hdgfapp-main-2f0f3-unauthRole",
+      "StackName": "amplify-hdgfapp-main-2f0f3",
+      "StackId": "arn:aws:cloudformation:us-west-1:220927856021:stack/amplify-hdgfapp-main-2f0f3/93046430-22f0-11f1-9524-022da36f6893",
+      "AmplifyAppId": "dnsfy85c6rkqq"
     }
   }
 }
