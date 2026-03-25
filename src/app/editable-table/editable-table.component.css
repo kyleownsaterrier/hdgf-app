@@ -10,6 +10,7 @@
 .app-header { padding: 14px 20px 10px; flex-shrink: 0; }
 .header-top { display: flex; align-items: center; justify-content: space-between; }
 .brand-row { display: flex; align-items: center; gap: 9px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
 .brand-icon {
   width: 34px; height: 34px;
   background: var(--accent-glow);
@@ -201,3 +202,24 @@
 .footer-btn-del { border-left: 1px solid var(--border); justify-content: flex-end; }
 .footer-btn-del:active { color: var(--danger); }
 .footer-btn-del:disabled { opacity: 0.25; pointer-events: none; }
+
+/* Save indicator */
+.save-indicator {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  display: flex; align-items: center; gap: 4px;
+  opacity: 0; transition: opacity 0.3s;
+  white-space: nowrap;
+}
+.save-indicator.saving { opacity: 1; color: var(--text-muted); }
+.save-indicator.saved  { opacity: 1; color: var(--accent); }
+.save-indicator.error  { opacity: 1; color: var(--danger); }
+
+.save-spinner {
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

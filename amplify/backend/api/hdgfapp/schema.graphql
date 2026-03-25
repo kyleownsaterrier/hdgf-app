@@ -1,0 +1,53 @@
+type DoublesTable {
+  id: ID!
+  rows: [DoublesRow!]!
+  caliPlayer: String
+  updatedAt: AWSDateTime!
+}
+
+type DoublesRow {
+  id: Int!
+  leftValue: String!
+  rightValue: String!
+}
+
+type BagTagsTable {
+  id: ID!
+  rows: [BagTagRow!]!
+  updatedAt: AWSDateTime!
+}
+
+type BagTagRow {
+  id: Int!
+  value: String!
+  score: String!
+  tagNum: Int
+}
+
+input DoublesRowInput {
+  id: Int!
+  leftValue: String!
+  rightValue: String!
+}
+
+input BagTagRowInput {
+  id: Int!
+  value: String!
+  score: String!
+  tagNum: Int
+}
+
+type Query {
+  getDoublesTable(id: ID!): DoublesTable
+  getBagTagsTable(id: ID!): BagTagsTable
+}
+
+type Mutation {
+  saveDoublesTable(id: ID!, rows: [DoublesRowInput!]!, caliPlayer: String): DoublesTable!
+  saveBagTagsTable(id: ID!, rows: [BagTagRowInput!]!): BagTagsTable!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

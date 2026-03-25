@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DataService } from '../services/data.service';
 
 export interface BagTagRow {
   id: number;
@@ -30,39 +31,48 @@ export class BagTagsComponent implements OnInit {
   showResults = false;
   results: AssignmentResult[] = [];
 
-  ngOnInit(): void {
-    this.addRow();
+  private data = inject(DataService);
+  get saveStatus() { return this.data.bagTagsSaveStatus; }
+
+  async ngOnInit(): Promise<void> {
+    const saved = await this.data.loadBagTags();
+    if (saved && saved.length > 0) {
+      this.rows = saved;
+      this.nextId = Math.max(...saved.map((r: BagTagRow) => r.id)) + 1;
+    } else {
+      this.addRow();
+    }
+  }
+
+  private triggerSave(): void {
+    this.data.autoSaveBagTags(this.rows);
   }
 
   addRow(value = '', score = ''): void {
     this.rows.push({ id: this.nextId++, value, score, tagNum: null });
+    this.triggerSave();
   }
 
   deleteLastRow(): void {
-    if (this.rows.length > 1) this.rows.pop();
+    if (this.rows.length > 1) { this.rows.pop(); this.triggerSave(); }
   }
 
   clearCell(row: BagTagRow): void {
     row.value = '';
+    this.triggerSave();
+  }
+
+  onCellInput(): void {
+    this.triggerSave();
   }
 
   getDisplayNum(row: BagTagRow, index: number): number {
     return row.tagNum !== null ? row.tagNum : index + 1;
   }
 
-  isNegative(score: string): boolean {
-    return score.trim().startsWith('-');
-  }
-
-  toggleSign(row: BagTagRow): void {
-    const s = row.score.trim();
-    if (!s || s === '—') return;
-    row.score = s.startsWith('-') ? s.slice(1) : '-' + s;
-  }
-
   setTagNum(row: BagTagRow, index: number, val: string): void {
     const n = parseInt(val, 10);
-    if (!isNaN(n) && n > 0) row.tagNum = n;
+    if (!isNaN(n) && n > 0) { row.tagNum = n; this.triggerSave(); }
   }
 
   validateTagNum(row: BagTagRow, index: number, el: HTMLInputElement): void {
@@ -71,9 +81,20 @@ export class BagTagsComponent implements OnInit {
       row.tagNum = n;
       el.value = String(n);
     } else {
-      // Revert to last valid value
       el.value = String(this.getDisplayNum(row, index));
     }
+    this.triggerSave();
+  }
+
+  isNegative(score: string): boolean {
+    return score.trim().startsWith('-');
+  }
+
+  toggleSign(row: BagTagRow): void {
+    const s = row.score.trim();
+    if (!s) return;
+    row.score = s.startsWith('-') ? s.slice(1) : '-' + s;
+    this.triggerSave();
   }
 
   // ── Tag Assignment ──────────────────────────────
@@ -97,21 +118,13 @@ export class BagTagsComponent implements OnInit {
     this.results = sorted.map((player, i) => {
       const oldTag = player.tagNum !== null ? player.tagNum : (this.rows.indexOf(player) + 1);
       const newTag = tagPool[i];
-      return {
-        player,
-        oldTag,
-        newTag,
-        score: player.score !== '' ? player.score : '—',
-        changed: oldTag !== newTag
-      };
+      return { player, oldTag, newTag, score: player.score !== '' ? player.score : '—', changed: oldTag !== newTag };
     });
 
     this.showResults = true;
   }
 
-  closeResults(): void {
-    this.showResults = false;
-  }
+  closeResults(): void { this.showResults = false; }
 
   onKeyDown(event: KeyboardEvent, rowIndex: number): void {
     if (event.key === 'Enter') {
@@ -130,9 +143,7 @@ export class BagTagsComponent implements OnInit {
     if (inputs[index]) inputs[index].focus();
   }
 
-  trackById(_index: number, row: BagTagRow): number {
-    return row.id;
-  }
+  trackById(_index: number, row: BagTagRow): number { return row.id; }
 
   get filledCount(): number {
     return this.rows.filter(r => r.value.trim()).length;

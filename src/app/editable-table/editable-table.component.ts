@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DataService } from '../services/data.service';
 
 export interface TableRow {
   id: number;
@@ -24,16 +25,32 @@ export class EditableTableComponent implements OnInit {
   caliPlayerVisible = false;
   caliBannerFlash = false;
 
-  ngOnInit(): void {
-    this.addRow();
+  private data = inject(DataService);
+  get saveStatus() { return this.data.doublesSaveStatus; }
+
+  async ngOnInit(): Promise<void> {
+    const saved = await this.data.loadDoubles();
+    if (saved && saved.rows.length > 0) {
+      this.rows = saved.rows;
+      this.nextId = Math.max(...saved.rows.map(r => r.id)) + 1;
+      this.caliPlayerValue = saved.caliPlayer;
+      this.caliPlayerVisible = !!saved.caliPlayer;
+    } else {
+      this.addRow();
+    }
+  }
+
+  private triggerSave(): void {
+    this.data.autoSaveDoubles(this.rows, this.caliPlayerValue);
   }
 
   addRow(leftValue = '', rightValue = ''): void {
     this.rows.push({ id: this.nextId++, leftValue, rightValue });
+    this.triggerSave();
   }
 
   deleteLastRow(): void {
-    if (this.rows.length > 1) this.rows.pop();
+    if (this.rows.length > 1) { this.rows.pop(); this.triggerSave(); }
   }
 
   shuffleColumnB(): void {
@@ -46,15 +63,22 @@ export class EditableTableComponent implements OnInit {
     this.shuffleCount++;
     this.shuffleFlash = true;
     setTimeout(() => this.shuffleFlash = false, 800);
+    this.triggerSave();
   }
 
   clearAll(): void {
     this.rows.forEach(r => { r.leftValue = ''; r.rightValue = ''; });
+    this.triggerSave();
   }
 
   clearCell(row: TableRow, col: 'left' | 'right'): void {
     if (col === 'left') row.leftValue = '';
     else row.rightValue = '';
+    this.triggerSave();
+  }
+
+  onCellInput(): void {
+    this.triggerSave();
   }
 
   promoteToCaliplayer(row: TableRow): void {
@@ -63,6 +87,7 @@ export class EditableTableComponent implements OnInit {
     this.caliPlayerVisible = true;
     this.caliBannerFlash = true;
     setTimeout(() => this.caliBannerFlash = false, 600);
+    this.triggerSave();
   }
 
   removeCaliPlayer(): void {
@@ -71,12 +96,10 @@ export class EditableTableComponent implements OnInit {
     this.caliPlayerVisible = false;
     if (val.trim()) {
       const emptyRow = this.rows.find(r => !r.rightValue.trim());
-      if (emptyRow) {
-        emptyRow.rightValue = val;
-      } else {
-        this.addRow('', val);
-      }
+      if (emptyRow) emptyRow.rightValue = val;
+      else this.addRow('', val);
     }
+    this.triggerSave();
   }
 
   onKeyDown(event: KeyboardEvent, rowIndex: number, col: 'left' | 'right'): void {
@@ -101,9 +124,7 @@ export class EditableTableComponent implements OnInit {
     el?.focus();
   }
 
-  trackById(_index: number, row: TableRow): number {
-    return row.id;
-  }
+  trackById(_index: number, row: TableRow): number { return row.id; }
 
   get filledRowCount(): number {
     return this.rows.filter(r => r.leftValue.trim() || r.rightValue.trim()).length;
