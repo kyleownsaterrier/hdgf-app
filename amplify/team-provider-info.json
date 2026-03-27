@@ -10,6 +10,11 @@
       "StackName": "amplify-hdgfapp-main-2f0f3",
       "StackId": "arn:aws:cloudformation:us-west-1:220927856021:stack/amplify-hdgfapp-main-2f0f3/93046430-22f0-11f1-9524-022da36f6893",
       "AmplifyAppId": "dnsfy85c6rkqq"
+    },
+    "categories": {
+      "api": {
+        "hdgfapp": {}
+      }
     }
   }
 }

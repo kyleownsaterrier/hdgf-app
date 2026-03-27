@@ -1,53 +1,13 @@
-type DoublesTable {
+# Paste this into Amplify's schema.graphql (amplify/backend/api/YOUR_API_NAME/schema.graphql)
+# Then run: amplify push
+
+type DoublesTable @model @auth(rules: [{ allow: public, provider: apiKey }]) {
   id: ID!
-  rows: [DoublesRow!]!
+  rows: AWSJSON!
   caliPlayer: String
-  updatedAt: AWSDateTime!
 }
 
-type DoublesRow {
-  id: Int!
-  leftValue: String!
-  rightValue: String!
-}
-
-type BagTagsTable {
+type BagTagsTable @model @auth(rules: [{ allow: public, provider: apiKey }]) {
   id: ID!
-  rows: [BagTagRow!]!
-  updatedAt: AWSDateTime!
-}
-
-type BagTagRow {
-  id: Int!
-  value: String!
-  score: String!
-  tagNum: Int
-}
-
-input DoublesRowInput {
-  id: Int!
-  leftValue: String!
-  rightValue: String!
-}
-
-input BagTagRowInput {
-  id: Int!
-  value: String!
-  score: String!
-  tagNum: Int
-}
-
-type Query {
-  getDoublesTable(id: ID!): DoublesTable
-  getBagTagsTable(id: ID!): BagTagsTable
-}
-
-type Mutation {
-  saveDoublesTable(id: ID!, rows: [DoublesRowInput!]!, caliPlayer: String): DoublesTable!
-  saveBagTagsTable(id: ID!, rows: [BagTagRowInput!]!): BagTagsTable!
-}
-
-schema {
-  query: Query
-  mutation: Mutation
+  rows: AWSJSON!
 }
