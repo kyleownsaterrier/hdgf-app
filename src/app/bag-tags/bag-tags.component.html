@@ -5,17 +5,8 @@
       <div class="brand-icon">🏷</div>
       <span class="brand-name">Bag Tags</span>
     </div>
-    <div class="header-right">
-      <span class="save-indicator" [class.saving]="saveStatus === 'saving'" [class.saved]="saveStatus === 'saved'" [class.error]="saveStatus === 'error'">
-        <ng-container *ngIf="saveStatus === 'saving'">
-          <span class="save-spinner"></span> Saving…
-        </ng-container>
-        <ng-container *ngIf="saveStatus === 'saved'">✓ Saved</ng-container>
-        <ng-container *ngIf="saveStatus === 'error'">⚠ Error</ng-container>
-      </span>
-      <div class="row-pill">
-        <span class="row-pill-num">{{ filledCount }}</span><span> tags</span>
-      </div>
+    <div class="row-pill">
+      <span class="row-pill-num">{{ filledCount }}</span><span> tags</span>
     </div>
   </div>
 </div>
@@ -54,7 +45,6 @@
           class="bt-input"
           type="text"
           [(ngModel)]="row.value"
-          (ngModelChange)="onCellInput()"
           placeholder="—"
           (keydown)="onKeyDown($event, i)"
         />
@@ -96,7 +86,6 @@
           type="text"
           inputmode="decimal"
           [(ngModel)]="row.score"
-          (ngModelChange)="onCellInput()"
           placeholder="—"
         />
       </div>

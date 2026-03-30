@@ -1,7 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DataService } from '../services/data.service';
 
 export interface BagTagRow {
   id: number;
@@ -31,39 +30,20 @@ export class BagTagsComponent implements OnInit {
   showResults = false;
   results: AssignmentResult[] = [];
 
-  private data = inject(DataService);
-  get saveStatus() { return this.data.bagTagsSaveStatus; }
-
-  async ngOnInit(): Promise<void> {
-    const saved = await this.data.loadBagTags();
-    if (saved && saved.length > 0) {
-      this.rows = saved;
-      this.nextId = Math.max(...saved.map((r: BagTagRow) => r.id)) + 1;
-    } else {
-      this.addRow();
-    }
-  }
-
-  private triggerSave(): void {
-    this.data.autoSaveBagTags(this.rows);
+  ngOnInit(): void {
+    this.addRow();
   }
 
   addRow(value = '', score = ''): void {
     this.rows.push({ id: this.nextId++, value, score, tagNum: null });
-    this.triggerSave();
   }
 
   deleteLastRow(): void {
-    if (this.rows.length > 1) { this.rows.pop(); this.triggerSave(); }
+    if (this.rows.length > 1) this.rows.pop();
   }
 
   clearCell(row: BagTagRow): void {
     row.value = '';
-    this.triggerSave();
-  }
-
-  onCellInput(): void {
-    this.triggerSave();
   }
 
   getDisplayNum(row: BagTagRow, index: number): number {
@@ -72,7 +52,7 @@ export class BagTagsComponent implements OnInit {
 
   setTagNum(row: BagTagRow, index: number, val: string): void {
     const n = parseInt(val, 10);
-    if (!isNaN(n) && n > 0) { row.tagNum = n; this.triggerSave(); }
+    if (!isNaN(n) && n > 0) row.tagNum = n;
   }
 
   validateTagNum(row: BagTagRow, index: number, el: HTMLInputElement): void {
@@ -83,7 +63,6 @@ export class BagTagsComponent implements OnInit {
     } else {
       el.value = String(this.getDisplayNum(row, index));
     }
-    this.triggerSave();
   }
 
   isNegative(score: string): boolean {
@@ -94,16 +73,14 @@ export class BagTagsComponent implements OnInit {
     const s = row.score.trim();
     if (!s) return;
     row.score = s.startsWith('-') ? s.slice(1) : '-' + s;
-    this.triggerSave();
   }
 
-  // ── Tag Assignment ──────────────────────────────
   assignTags(): void {
     const eligible = this.rows.filter(r => r.value.trim());
     if (eligible.length === 0) return;
 
     const tagPool = eligible
-      .map((r) => r.tagNum !== null ? r.tagNum : (this.rows.indexOf(r) + 1))
+      .map(r => r.tagNum !== null ? r.tagNum : (this.rows.indexOf(r) + 1))
       .sort((a, b) => a - b);
 
     const sorted = [...eligible].sort((a, b) => {
