@@ -5,8 +5,17 @@
       <div class="brand-icon">⊞</div>
       <span class="brand-name">Doubles</span>
     </div>
-    <div class="row-pill">
-      <span class="row-pill-num">{{ filledRowCount }}</span><span> / {{ rows.length }}</span>
+    <div class="header-right">
+      <span class="save-indicator" [class.saving]="saveStatus === 'saving'" [class.saved]="saveStatus === 'saved'" [class.error]="saveStatus === 'error'">
+        <ng-container *ngIf="saveStatus === 'saving'">
+          <span class="save-spinner"></span> Saving…
+        </ng-container>
+        <ng-container *ngIf="saveStatus === 'saved'">✓ Saved</ng-container>
+        <ng-container *ngIf="saveStatus === 'error'">⚠ Error</ng-container>
+      </span>
+      <div class="row-pill">
+        <span class="row-pill-num">{{ filledRowCount }}</span><span> / {{ rows.length }}</span>
+      </div>
     </div>
   </div>
 </div>
@@ -76,6 +85,7 @@
           class="cell-input"
           type="text"
           [(ngModel)]="row.leftValue"
+          (ngModelChange)="onCellInput()"
           placeholder="—"
           [attr.data-row]="i"
           data-col="left"
@@ -107,6 +117,7 @@
           class="cell-input has-promote"
           type="text"
           [(ngModel)]="row.rightValue"
+          (ngModelChange)="onCellInput()"
           placeholder="—"
           [attr.data-row]="i"
           data-col="right"

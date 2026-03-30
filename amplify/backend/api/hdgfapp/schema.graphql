@@ -1,0 +1,11 @@
+type Doubles @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  rows: AWSJSON!
+  caliPlayer: String
+}
+
+type BagTags @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  rows: AWSJSON!
+}
+ 
