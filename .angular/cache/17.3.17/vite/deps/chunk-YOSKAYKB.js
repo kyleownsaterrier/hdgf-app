@@ -4235,41 +4235,28 @@ var serviceWorkerErrorMap = {
 var assert6 = createAssertionFunction(serviceWorkerErrorMap);
 
 export {
+  USER_AGENT_HEADER,
+  ConsoleLogger,
   AmplifyError,
   AmplifyErrorCode,
   createAssertionFunction,
-  USER_AGENT_HEADER,
-  ConsoleLogger,
-  isBrowser,
-  NonRetryableError,
-  isNonRetryableError,
-  jitteredExponentialRetry,
-  urlSafeDecode,
-  deDupeAsyncFunction,
-  isTokenExpired,
-  ADD_OAUTH_LISTENER,
-  amplifyUuid,
-  AmplifyUrl,
-  AmplifyUrlSearchParams,
-  parseAmplifyConfig,
-  getDeviceName,
+  AMPLIFY_SYMBOL,
+  Hub,
   base64Decoder,
   assertTokenProviderConfig,
   assertOAuthConfig,
   assertIdentityPoolIdConfig,
   decodeJWT,
+  isNonRetryableError,
+  ADD_OAUTH_LISTENER,
+  parseAmplifyConfig,
   Sha256,
-  signRequest,
   Category,
   ApiAction,
   AuthAction,
   getAmplifyUserAgent,
-  ApiError,
   Reachability,
-  AMPLIFY_SYMBOL,
-  Hub,
-  base64Encoder,
-  WordArray,
+  isBrowser,
   Amplify,
   fetchAuthSession2 as fetchAuthSession,
   parseJsonError,
@@ -4278,6 +4265,7 @@ export {
   jitteredBackoff2 as jitteredBackoff,
   getRetryDecider,
   retryMiddlewareFactory,
+  amplifyUuid,
   userAgentMiddlewareFactory,
   composeTransferHandler,
   fetchTransferHandler,
@@ -4285,11 +4273,23 @@ export {
   createGetCredentialsForIdentityClient,
   createGetIdClient,
   getDnsSuffix,
+  AmplifyUrl,
+  AmplifyUrlSearchParams,
   cognitoIdentityPoolEndpointResolver,
   CookieStorage,
   defaultStorage,
   syncSessionStorage,
-  signingMiddlewareFactory
+  signRequest,
+  signingMiddlewareFactory,
+  NonRetryableError,
+  jitteredExponentialRetry,
+  urlSafeDecode,
+  deDupeAsyncFunction,
+  isTokenExpired,
+  getDeviceName,
+  ApiError,
+  base64Encoder,
+  WordArray
 };
 /*! Bundled license information:
 
@@ -4321,4 +4321,4 @@ export {
 js-cookie/dist/js.cookie.mjs:
   (*! js-cookie v3.0.5 | MIT *)
 */
-//# sourceMappingURL=chunk-DBG3ER77.js.map
+//# sourceMappingURL=chunk-YOSKAYKB.js.map

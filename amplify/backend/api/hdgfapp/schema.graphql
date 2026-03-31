@@ -1,11 +1,17 @@
-type Doubles @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  rows: AWSJSON!
+# Copy this file to:
+#   amplify/backend/api/<YOUR_API_NAME>/schema.graphql
+# Then run: amplify push
+#
+# Amplify @model auto-generates DynamoDB tables, all CRUD resolvers,
+# and src/amplifyconfiguration.json.
+
+type DoublesTable @model @auth(rules: [{ allow: public, provider: apiKey }]) {
+  id: ID!           # fixed value "doubles-main"
+  rows: AWSJSON!    # serialised TableRow[]
   caliPlayer: String
 }
 
-type BagTags @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  rows: AWSJSON!
+type BagTagsTable @model @auth(rules: [{ allow: public, provider: apiKey }]) {
+  id: ID!           # fixed value "bagtags-main"
+  rows: AWSJSON!    # serialised BagTagRow[]
 }
- 

@@ -6,12 +6,16 @@
       <span class="brand-name">Doubles</span>
     </div>
     <div class="header-right">
-      <span class="save-indicator" [class.saving]="saveStatus === 'saving'" [class.saved]="saveStatus === 'saved'" [class.error]="saveStatus === 'error'">
-        <ng-container *ngIf="saveStatus === 'saving'">
-          <span class="save-spinner"></span> Saving…
-        </ng-container>
-        <ng-container *ngIf="saveStatus === 'saved'">✓ Saved</ng-container>
-        <ng-container *ngIf="saveStatus === 'error'">⚠ Error</ng-container>
+      <span class="save-indicator"
+        [class.saving]="saveStatus === 'saving'"
+        [class.saved]="saveStatus === 'saved'"
+        [class.error]="saveStatus === 'error'">
+        <span *ngIf="saveStatus === 'saving'" class="saving-dot"></span>
+        <span *ngIf="saveStatus === 'saved'">✓</span>
+        <span *ngIf="saveStatus === 'error'">⚠</span>
+        <span *ngIf="saveStatus !== 'idle'">
+          {{ saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : 'Error' }}
+        </span>
       </span>
       <div class="row-pill">
         <span class="row-pill-num">{{ filledRowCount }}</span><span> / {{ rows.length }}</span>
@@ -79,57 +83,42 @@
     >
       <div class="row-idx">{{ i + 1 }}</div>
 
-      <!-- Column A cell -->
+      <!-- Column A -->
       <div class="cell-wrap">
         <input
           class="cell-input"
           type="text"
           [(ngModel)]="row.leftValue"
-          (ngModelChange)="onCellInput()"
+          (ngModelChange)="onInput()"
           placeholder="—"
           [attr.data-row]="i"
           data-col="left"
           (keydown)="onKeyDown($event, i, 'left')"
         />
-        <button
-          class="cell-clear"
-          [class.visible]="row.leftValue"
-          (click)="clearCell(row, 'left')"
-          tabindex="-1"
-          aria-label="Clear"
-        >
+        <button class="cell-clear" [class.visible]="row.leftValue"
+          (click)="clearCell(row, 'left')" tabindex="-1" aria-label="Clear">
           <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
       </div>
 
-      <!-- Column B cell -->
+      <!-- Column B -->
       <div class="cell-wrap">
-        <button
-          class="cell-promote"
-          [class.visible]="row.rightValue"
-          (click)="promoteToCaliplayer(row)"
-          tabindex="-1"
-          aria-label="Set as Cali Player"
-        >*</button>
+        <button class="cell-promote" [class.visible]="row.rightValue"
+          (click)="promoteToCaliplayer(row)" tabindex="-1" aria-label="Set as Cali Player">*</button>
         <input
           class="cell-input has-promote"
           type="text"
           [(ngModel)]="row.rightValue"
-          (ngModelChange)="onCellInput()"
+          (ngModelChange)="onInput()"
           placeholder="—"
           [attr.data-row]="i"
           data-col="right"
           (keydown)="onKeyDown($event, i, 'right')"
         />
-        <button
-          class="cell-clear"
-          [class.visible]="row.rightValue"
-          (click)="clearCell(row, 'right')"
-          tabindex="-1"
-          aria-label="Clear"
-        >
+        <button class="cell-clear" [class.visible]="row.rightValue"
+          (click)="clearCell(row, 'right')" tabindex="-1" aria-label="Clear">
           <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -138,7 +127,7 @@
     </div>
   </div>
 
-  <!-- Footer buttons -->
+  <!-- Footer -->
   <div class="table-footer-btns">
     <button class="footer-btn footer-btn-add" (click)="addRow()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

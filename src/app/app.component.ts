@@ -7,13 +7,9 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <div class="phone-shell">
-
-      <!-- Routed Page -->
       <div class="app-screen">
         <router-outlet></router-outlet>
       </div>
-
-      <!-- Tab Bar -->
       <div class="tab-bar">
         <a class="tab-btn" routerLink="/doubles" routerLinkActive="active">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -30,12 +26,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
           <span>Bag Tags</span>
         </a>
       </div>
-
-      <!-- Home Indicator -->
-      <div class="home-area">
-        <div class="home-pill"></div>
-      </div>
-
+      <div class="home-area"><div class="home-pill"></div></div>
     </div>
   `,
   styleUrls: ['./app.component.css']

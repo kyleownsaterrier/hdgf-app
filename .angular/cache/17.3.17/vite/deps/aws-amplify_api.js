@@ -27,7 +27,7 @@ import {
   signRequest,
   signingMiddlewareFactory,
   userAgentMiddlewareFactory
-} from "./chunk-DBG3ER77.js";
+} from "./chunk-YOSKAYKB.js";
 import "./chunk-BHRMND74.js";
 import {
   Observable,

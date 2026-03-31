@@ -38,33 +38,26 @@ export class BagTagsComponent implements OnInit {
     const saved = await this.data.loadBagTags();
     if (saved && saved.length > 0) {
       this.rows = saved;
-      this.nextId = Math.max(...saved.map((r: BagTagRow) => r.id)) + 1;
+      this.nextId = Math.max(...saved.map(r => r.id)) + 1;
     } else {
       this.addRow();
     }
   }
 
-  private triggerSave(): void {
-    this.data.autoSaveBagTags(this.rows);
-  }
+  private save(): void { this.data.autoSaveBagTags(this.rows); }
+
+  onInput(): void { this.save(); }
 
   addRow(value = '', score = ''): void {
     this.rows.push({ id: this.nextId++, value, score, tagNum: null });
-    this.triggerSave();
+    this.save();
   }
 
   deleteLastRow(): void {
-    if (this.rows.length > 1) { this.rows.pop(); this.triggerSave(); }
+    if (this.rows.length > 1) { this.rows.pop(); this.save(); }
   }
 
-  clearCell(row: BagTagRow): void {
-    row.value = '';
-    this.triggerSave();
-  }
-
-  onCellInput(): void {
-    this.triggerSave();
-  }
+  clearCell(row: BagTagRow): void { row.value = ''; this.save(); }
 
   getDisplayNum(row: BagTagRow, index: number): number {
     return row.tagNum !== null ? row.tagNum : index + 1;
@@ -72,55 +65,40 @@ export class BagTagsComponent implements OnInit {
 
   setTagNum(row: BagTagRow, index: number, val: string): void {
     const n = parseInt(val, 10);
-    if (!isNaN(n) && n > 0) { row.tagNum = n; this.triggerSave(); }
+    if (!isNaN(n) && n > 0) { row.tagNum = n; this.save(); }
   }
 
   validateTagNum(row: BagTagRow, index: number, el: HTMLInputElement): void {
     const n = parseInt(el.value, 10);
-    if (!isNaN(n) && n > 0) {
-      row.tagNum = n;
-      el.value = String(n);
-    } else {
-      el.value = String(this.getDisplayNum(row, index));
-    }
-    this.triggerSave();
+    if (!isNaN(n) && n > 0) { row.tagNum = n; el.value = String(n); }
+    else el.value = String(this.getDisplayNum(row, index));
+    this.save();
   }
 
-  isNegative(score: string): boolean {
-    return score.trim().startsWith('-');
-  }
+  isNegative(score: string): boolean { return score.trim().startsWith('-'); }
 
   toggleSign(row: BagTagRow): void {
     const s = row.score.trim();
     if (!s) return;
     row.score = s.startsWith('-') ? s.slice(1) : '-' + s;
-    this.triggerSave();
+    this.save();
   }
 
-  // ── Tag Assignment ──────────────────────────────
   assignTags(): void {
     const eligible = this.rows.filter(r => r.value.trim());
-    if (eligible.length === 0) return;
-
-    const tagPool = eligible
-      .map((r) => r.tagNum !== null ? r.tagNum : (this.rows.indexOf(r) + 1))
-      .sort((a, b) => a - b);
-
+    if (!eligible.length) return;
+    const tagPool = eligible.map(r => r.tagNum !== null ? r.tagNum : (this.rows.indexOf(r) + 1)).sort((a, b) => a - b);
     const sorted = [...eligible].sort((a, b) => {
       const sa = a.score !== '' ? parseFloat(a.score) : Infinity;
       const sb = b.score !== '' ? parseFloat(b.score) : Infinity;
       if (sa !== sb) return sa - sb;
-      const ta = a.tagNum !== null ? a.tagNum : (this.rows.indexOf(a) + 1);
-      const tb = b.tagNum !== null ? b.tagNum : (this.rows.indexOf(b) + 1);
-      return ta - tb;
+      return (a.tagNum ?? this.rows.indexOf(a) + 1) - (b.tagNum ?? this.rows.indexOf(b) + 1);
     });
-
     this.results = sorted.map((player, i) => {
       const oldTag = player.tagNum !== null ? player.tagNum : (this.rows.indexOf(player) + 1);
       const newTag = tagPool[i];
-      return { player, oldTag, newTag, score: player.score !== '' ? player.score : '—', changed: oldTag !== newTag };
+      return { player, oldTag, newTag, score: player.score || '—', changed: oldTag !== newTag };
     });
-
     this.showResults = true;
   }
 
@@ -143,9 +121,7 @@ export class BagTagsComponent implements OnInit {
     if (inputs[index]) inputs[index].focus();
   }
 
-  trackById(_index: number, row: BagTagRow): number { return row.id; }
+  trackById(_i: number, row: BagTagRow): number { return row.id; }
 
-  get filledCount(): number {
-    return this.rows.filter(r => r.value.trim()).length;
-  }
+  get filledCount(): number { return this.rows.filter(r => r.value.trim()).length; }
 }

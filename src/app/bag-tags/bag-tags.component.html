@@ -6,12 +6,16 @@
       <span class="brand-name">Bag Tags</span>
     </div>
     <div class="header-right">
-      <span class="save-indicator" [class.saving]="saveStatus === 'saving'" [class.saved]="saveStatus === 'saved'" [class.error]="saveStatus === 'error'">
-        <ng-container *ngIf="saveStatus === 'saving'">
-          <span class="save-spinner"></span> Saving…
-        </ng-container>
-        <ng-container *ngIf="saveStatus === 'saved'">✓ Saved</ng-container>
-        <ng-container *ngIf="saveStatus === 'error'">⚠ Error</ng-container>
+      <span class="save-indicator"
+        [class.saving]="saveStatus === 'saving'"
+        [class.saved]="saveStatus === 'saved'"
+        [class.error]="saveStatus === 'error'">
+        <span *ngIf="saveStatus === 'saving'" class="saving-dot"></span>
+        <span *ngIf="saveStatus === 'saved'">✓</span>
+        <span *ngIf="saveStatus === 'error'">⚠</span>
+        <span *ngIf="saveStatus !== 'idle'">
+          {{ saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : 'Error' }}
+        </span>
       </span>
       <div class="row-pill">
         <span class="row-pill-num">{{ filledCount }}</span><span> tags</span>
@@ -39,7 +43,7 @@
   <div class="bt-col-hd bt-col-hd-score">Score</div>
 </div>
 
-<!-- List -->
+<!-- Table -->
 <div class="bt-list-area">
   <div class="bt-rows">
     <div
@@ -49,28 +53,25 @@
     >
       <div class="bt-idx">{{ i + 1 }}</div>
 
+      <!-- Player -->
       <div class="bt-cell-wrap">
         <input
           class="bt-input"
           type="text"
           [(ngModel)]="row.value"
-          (ngModelChange)="onCellInput()"
+          (ngModelChange)="onInput()"
           placeholder="—"
           (keydown)="onKeyDown($event, i)"
         />
-        <button
-          class="bt-clear"
-          [class.visible]="row.value"
-          (click)="clearCell(row)"
-          tabindex="-1"
-          aria-label="Clear"
-        >
+        <button class="bt-clear" [class.visible]="row.value"
+          (click)="clearCell(row)" tabindex="-1" aria-label="Clear">
           <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
       </div>
 
+      <!-- Tag -->
       <div class="bt-num">
         <input
           class="bt-tag-input"
@@ -83,26 +84,25 @@
         />
       </div>
 
+      <!-- Score -->
       <div class="bt-score-wrap">
-        <button
-          class="bt-sign-btn"
-          (click)="toggleSign(row)"
-          [class.negative]="isNegative(row.score)"
-          tabindex="-1"
-          aria-label="Toggle sign"
-        >{{ isNegative(row.score) ? '−' : '+' }}</button>
+        <button class="bt-sign-btn" (click)="toggleSign(row)"
+          [class.negative]="isNegative(row.score)" tabindex="-1" aria-label="Toggle sign">
+          {{ isNegative(row.score) ? '−' : '+' }}
+        </button>
         <input
           class="bt-score-input"
           type="text"
           inputmode="decimal"
           [(ngModel)]="row.score"
-          (ngModelChange)="onCellInput()"
+          (ngModelChange)="onInput()"
           placeholder="—"
         />
       </div>
     </div>
   </div>
 
+  <!-- Footer -->
   <div class="table-footer-btns">
     <button class="footer-btn footer-btn-add" (click)="addRow()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -123,11 +123,7 @@
 </div>
 
 <!-- Results Modal -->
-<div
-  *ngIf="showResults"
-  class="bt-results-overlay"
-  (click)="closeResults()"
->
+<div *ngIf="showResults" class="bt-results-overlay" (click)="closeResults()">
   <div class="bt-results-sheet" (click)="$event.stopPropagation()">
     <div class="bt-results-handle"></div>
     <div class="bt-results-header">
@@ -146,10 +142,7 @@
       <div class="bt-res-hd">New</div>
     </div>
     <div class="bt-results-list">
-      <div
-        *ngFor="let r of results; let i = index"
-        class="bt-result-row"
-      >
+      <div *ngFor="let r of results; let i = index" class="bt-result-row">
         <div class="bt-res-rank">{{ i + 1 }}</div>
         <div class="bt-res-name">{{ r.player.value }}</div>
         <div class="bt-res-cell">{{ r.score }}</div>
