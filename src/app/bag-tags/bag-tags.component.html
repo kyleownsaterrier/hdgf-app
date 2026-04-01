@@ -33,6 +33,15 @@
     </svg>
     Assign Tags
   </button>
+  <button class="bt-delete-all-btn" (click)="deleteAll()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <polyline points="3 6 5 6 21 6"/>
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+      <path d="M10 11v6"/><path d="M14 11v6"/>
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+    </svg>
+    Delete All
+  </button>
 </div>
 
 <!-- Column Headers -->
@@ -40,6 +49,7 @@
   <div></div>
   <div class="bt-col-hd">Player</div>
   <div class="bt-col-hd bt-col-hd-tag">Tag</div>
+  <div></div>
   <div class="bt-col-hd bt-col-hd-score">Score</div>
 </div>
 
@@ -83,6 +93,9 @@
           aria-label="Tag number"
         />
       </div>
+
+      <!-- Spacer -->
+      <div></div>
 
       <!-- Score -->
       <div class="bt-score-wrap">

@@ -57,6 +57,11 @@ export class BagTagsComponent implements OnInit {
     if (this.rows.length > 1) { this.rows.pop(); this.save(); }
   }
 
+  deleteAll(): void {
+    this.rows = [{ id: this.nextId++, value: '', score: '', tagNum: null }];
+    this.save();
+  }
+
   clearCell(row: BagTagRow): void { row.value = ''; this.save(); }
 
   getDisplayNum(row: BagTagRow, index: number): number {

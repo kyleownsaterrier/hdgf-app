@@ -42,6 +42,16 @@ const GET_BAGTAGS = /* GraphQL */`
     getBagTagsTable(id: $id) { id rows updatedAt }
   }`;
 
+const DELETE_DOUBLES = /* GraphQL */`
+  mutation DeleteDoublesTable($input: DeleteDoublesTableInput!) {
+    deleteDoublesTable(input: $input) { id }
+  }`;
+
+const DELETE_BAGTAGS = /* GraphQL */`
+  mutation DeleteBagTagsTable($input: DeleteBagTagsTableInput!) {
+    deleteBagTagsTable(input: $input) { id }
+  }`;
+
 @Injectable({ providedIn: 'root' })
 export class DataService {
   doublesSaveStatus: SaveStatus = 'idle';
@@ -115,25 +125,16 @@ export class DataService {
       caliPlayer: p.caliPlayer || null
     };
     try {
+      // 1. Delete the existing record to fully clear it
       if (this.doublesExists) {
-        await this.client.graphql({ query: UPDATE_DOUBLES, variables: { input } });
-      } else {
-        await this.client.graphql({ query: CREATE_DOUBLES, variables: { input } });
-        this.doublesExists = true;
+        await this.client.graphql({ query: DELETE_DOUBLES, variables: { input: { id: DOUBLES_ID } } });
       }
+      // 2. Re-create with current data
+      await this.client.graphql({ query: CREATE_DOUBLES, variables: { input } });
+      this.doublesExists = true;
       this.doublesSaveStatus = 'saved';
       setTimeout(() => { if (this.doublesSaveStatus === 'saved') this.doublesSaveStatus = 'idle'; }, 2500);
     } catch (e: any) {
-      // First save attempt: if update fails because record doesn't exist yet, create it
-      if (this.isConditionalError(e)) {
-        try {
-          await this.client.graphql({ query: CREATE_DOUBLES, variables: { input } });
-          this.doublesExists = true;
-          this.doublesSaveStatus = 'saved';
-          setTimeout(() => { if (this.doublesSaveStatus === 'saved') this.doublesSaveStatus = 'idle'; }, 2500);
-          return;
-        } catch { /* fall through to error */ }
-      }
       console.error('[DataService] saveDoubles:', e);
       this.doublesSaveStatus = 'error';
     }
@@ -145,24 +146,16 @@ export class DataService {
       rows: JSON.stringify(rows.map(r => ({ id: r.id, value: r.value, score: r.score, tagNum: r.tagNum ?? null })))
     };
     try {
+      // 1. Delete the existing record to fully clear it
       if (this.bagTagsExists) {
-        await this.client.graphql({ query: UPDATE_BAGTAGS, variables: { input } });
-      } else {
-        await this.client.graphql({ query: CREATE_BAGTAGS, variables: { input } });
-        this.bagTagsExists = true;
+        await this.client.graphql({ query: DELETE_BAGTAGS, variables: { input: { id: BAGTAGS_ID } } });
       }
+      // 2. Re-create with current data
+      await this.client.graphql({ query: CREATE_BAGTAGS, variables: { input } });
+      this.bagTagsExists = true;
       this.bagTagsSaveStatus = 'saved';
       setTimeout(() => { if (this.bagTagsSaveStatus === 'saved') this.bagTagsSaveStatus = 'idle'; }, 2500);
     } catch (e: any) {
-      if (this.isConditionalError(e)) {
-        try {
-          await this.client.graphql({ query: CREATE_BAGTAGS, variables: { input } });
-          this.bagTagsExists = true;
-          this.bagTagsSaveStatus = 'saved';
-          setTimeout(() => { if (this.bagTagsSaveStatus === 'saved') this.bagTagsSaveStatus = 'idle'; }, 2500);
-          return;
-        } catch { /* fall through to error */ }
-      }
       console.error('[DataService] saveBagTags:', e);
       this.bagTagsSaveStatus = 'error';
     }
