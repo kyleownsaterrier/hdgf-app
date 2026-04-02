@@ -14,7 +14,7 @@ const BAGTAGS_ID = 'bagtags-main';
 // Amplify @model auto-generates createXxx / updateXxx / getXxx mutations & queries.
 const CREATE_DOUBLES = /* GraphQL */`
   mutation CreateDoublesTable($input: CreateDoublesTableInput!) {
-    createDoublesTable(input: $input) { id updatedAt }
+    createDoublesTable(input: $input) { id _version updatedAt }
   }`;
 
 const UPDATE_DOUBLES = /* GraphQL */`
@@ -24,12 +24,12 @@ const UPDATE_DOUBLES = /* GraphQL */`
 
 const GET_DOUBLES = /* GraphQL */`
   query GetDoublesTable($id: ID!) {
-    getDoublesTable(id: $id) { id rows caliPlayer updatedAt }
+    getDoublesTable(id: $id) { id rows caliPlayer _version updatedAt }
   }`;
 
 const CREATE_BAGTAGS = /* GraphQL */`
   mutation CreateBagTagsTable($input: CreateBagTagsTableInput!) {
-    createBagTagsTable(input: $input) { id updatedAt }
+    createBagTagsTable(input: $input) { id _version updatedAt }
   }`;
 
 const UPDATE_BAGTAGS = /* GraphQL */`
@@ -39,7 +39,7 @@ const UPDATE_BAGTAGS = /* GraphQL */`
 
 const GET_BAGTAGS = /* GraphQL */`
   query GetBagTagsTable($id: ID!) {
-    getBagTagsTable(id: $id) { id rows updatedAt }
+    getBagTagsTable(id: $id) { id rows _version updatedAt }
   }`;
 
 const DELETE_DOUBLES = /* GraphQL */`
@@ -60,6 +60,8 @@ export class DataService {
   private client = generateClient();
   private doublesExists = false;
   private bagTagsExists = false;
+  private doublesVersion: number | null = null;
+  private bagTagsVersion: number | null = null;
 
   private doublesTrigger$ = new Subject<{ rows: TableRow[]; caliPlayer: string }>();
   private bagTagsTrigger$ = new Subject<BagTagRow[]>();
@@ -91,6 +93,7 @@ export class DataService {
       const rec = res.data?.getDoublesTable;
       if (!rec) return null;
       this.doublesExists = true;
+      this.doublesVersion = rec._version ?? null;
       return {
         rows: typeof rec.rows === 'string' ? JSON.parse(rec.rows) : (rec.rows ?? []),
         caliPlayer: rec.caliPlayer ?? ''
@@ -109,6 +112,7 @@ export class DataService {
       const rec = res.data?.getBagTagsTable;
       if (!rec) return null;
       this.bagTagsExists = true;
+      this.bagTagsVersion = rec._version ?? null;
       return typeof rec.rows === 'string' ? JSON.parse(rec.rows) : (rec.rows ?? []);
     } catch (e) {
       console.warn('[DataService] loadBagTags:', e);
@@ -127,11 +131,17 @@ export class DataService {
     try {
       // 1. Delete the existing record to fully clear it
       if (this.doublesExists) {
-        await this.client.graphql({ query: DELETE_DOUBLES, variables: { input: { id: DOUBLES_ID } } });
+        await this.client.graphql({
+          query: DELETE_DOUBLES,
+          variables: { input: { id: DOUBLES_ID, ...(this.doublesVersion !== null ? { _version: this.doublesVersion } : {}) } }
+        });
+        this.doublesExists = false;
+        this.doublesVersion = null;
       }
       // 2. Re-create with current data
-      await this.client.graphql({ query: CREATE_DOUBLES, variables: { input } });
+      const res: any = await this.client.graphql({ query: CREATE_DOUBLES, variables: { input } });
       this.doublesExists = true;
+      this.doublesVersion = res.data?.createDoublesTable?._version ?? null;
       this.doublesSaveStatus = 'saved';
       setTimeout(() => { if (this.doublesSaveStatus === 'saved') this.doublesSaveStatus = 'idle'; }, 2500);
     } catch (e: any) {
@@ -148,11 +158,17 @@ export class DataService {
     try {
       // 1. Delete the existing record to fully clear it
       if (this.bagTagsExists) {
-        await this.client.graphql({ query: DELETE_BAGTAGS, variables: { input: { id: BAGTAGS_ID } } });
+        await this.client.graphql({
+          query: DELETE_BAGTAGS,
+          variables: { input: { id: BAGTAGS_ID, ...(this.bagTagsVersion !== null ? { _version: this.bagTagsVersion } : {}) } }
+        });
+        this.bagTagsExists = false;
+        this.bagTagsVersion = null;
       }
       // 2. Re-create with current data
-      await this.client.graphql({ query: CREATE_BAGTAGS, variables: { input } });
+      const res: any = await this.client.graphql({ query: CREATE_BAGTAGS, variables: { input } });
       this.bagTagsExists = true;
+      this.bagTagsVersion = res.data?.createBagTagsTable?._version ?? null;
       this.bagTagsSaveStatus = 'saved';
       setTimeout(() => { if (this.bagTagsSaveStatus === 'saved') this.bagTagsSaveStatus = 'idle'; }, 2500);
     } catch (e: any) {
