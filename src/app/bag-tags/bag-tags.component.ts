@@ -30,6 +30,11 @@ export class BagTagsComponent implements OnInit {
   nextId = 1;
   showResults = false;
   results: AssignmentResult[] = [];
+  leaderboardUpdateStatus: 'idle' | 'saving' | 'done' | 'error' = 'idle';
+
+  // Autocomplete state
+  suggestions: string[] = [];
+  activeSuggestionRowId: number | null = null;
 
   private data = inject(DataService);
   get saveStatus() { return this.data.bagTagsSaveStatus; }
@@ -45,49 +50,63 @@ export class BagTagsComponent implements OnInit {
   }
 
   private save(): void { this.data.autoSaveBagTags(this.rows); }
-
   onInput(): void { this.save(); }
 
   addRow(value = '', score = ''): void {
     this.rows.push({ id: this.nextId++, value, score, tagNum: null });
     this.save();
   }
-
-  deleteLastRow(): void {
-    if (this.rows.length > 1) { this.rows.pop(); this.save(); }
-  }
-
-  deleteAll(): void {
-    this.rows = [{ id: this.nextId++, value: '', score: '', tagNum: null }];
-    this.save();
-  }
-
+  deleteLastRow(): void { if (this.rows.length > 1) { this.rows.pop(); this.save(); } }
+  deleteAll(): void { this.rows = [{ id: this.nextId++, value: '', score: '', tagNum: null }]; this.save(); }
   clearCell(row: BagTagRow): void { row.value = ''; this.save(); }
 
   getDisplayNum(row: BagTagRow, index: number): number {
     return row.tagNum !== null ? row.tagNum : index + 1;
   }
-
   setTagNum(row: BagTagRow, index: number, val: string): void {
     const n = parseInt(val, 10);
     if (!isNaN(n) && n > 0) { row.tagNum = n; this.save(); }
   }
-
   validateTagNum(row: BagTagRow, index: number, el: HTMLInputElement): void {
     const n = parseInt(el.value, 10);
     if (!isNaN(n) && n > 0) { row.tagNum = n; el.value = String(n); }
     else el.value = String(this.getDisplayNum(row, index));
     this.save();
   }
-
   isNegative(score: string): boolean { return score.trim().startsWith('-'); }
-
   toggleSign(row: BagTagRow): void {
     const s = row.score.trim();
     if (!s) return;
     row.score = s.startsWith('-') ? s.slice(1) : '-' + s;
     this.save();
   }
+
+  // ── Autocomplete ────────────────────────────────────────────────────────────
+
+  async onPlayerInput(row: BagTagRow): Promise<void> {
+    this.save();
+    if (row.value.trim().length < 1) {
+      this.suggestions = [];
+      this.activeSuggestionRowId = null;
+      return;
+    }
+    this.activeSuggestionRowId = row.id;
+    this.suggestions = await this.data.searchLeaderboardNames(row.value);
+  }
+
+  selectSuggestion(row: BagTagRow, name: string): void {
+    row.value = name;
+    this.suggestions = [];
+    this.activeSuggestionRowId = null;
+    this.save();
+  }
+
+  dismissSuggestions(): void {
+    this.suggestions = [];
+    this.activeSuggestionRowId = null;
+  }
+
+  // ── Assign Tags ─────────────────────────────────────────────────────────────
 
   assignTags(): void {
     const eligible = this.rows.filter(r => r.value.trim());
@@ -104,14 +123,35 @@ export class BagTagsComponent implements OnInit {
       const newTag = tagPool[i];
       return { player, oldTag, newTag, score: player.score || '—', changed: oldTag !== newTag };
     });
+    this.leaderboardUpdateStatus = 'idle';
     this.showResults = true;
   }
 
-  closeResults(): void { this.showResults = false; }
+  async updateLeaderboard(): Promise<void> {
+    this.leaderboardUpdateStatus = 'saving';
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const assignments = this.results.map(r => ({
+      playerName: r.player.value,
+      tagNum: r.newTag
+    }));
+    try {
+      await this.data.updateLeaderboard(assignments, today);
+      this.leaderboardUpdateStatus = 'done';
+    } catch {
+      this.leaderboardUpdateStatus = 'error';
+    }
+  }
+
+  closeResults(): void {
+    this.showResults = false;
+    this.leaderboardUpdateStatus = 'idle';
+  }
 
   onKeyDown(event: KeyboardEvent, rowIndex: number): void {
+    if (event.key === 'Escape') { this.dismissSuggestions(); return; }
     if (event.key === 'Enter') {
       event.preventDefault();
+      this.dismissSuggestions();
       if (rowIndex === this.rows.length - 1) {
         this.addRow();
         setTimeout(() => this.focusRow(rowIndex + 1), 10);
@@ -127,6 +167,5 @@ export class BagTagsComponent implements OnInit {
   }
 
   trackById(_i: number, row: BagTagRow): number { return row.id; }
-
   get filledCount(): number { return this.rows.filter(r => r.value.trim()).length; }
 }

@@ -24,7 +24,7 @@
   </div>
 </div>
 
-<!-- Assign Tags Button -->
+<!-- Action Bar -->
 <div class="bt-action-bar">
   <button class="bt-assign-btn" (click)="assignTags()">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
@@ -54,7 +54,7 @@
 </div>
 
 <!-- Table -->
-<div class="bt-list-area">
+<div class="bt-list-area" (click)="dismissSuggestions()">
   <div class="bt-rows">
     <div
       *ngFor="let row of rows; let i = index; trackBy: trackById"
@@ -63,22 +63,36 @@
     >
       <div class="bt-idx">{{ i + 1 }}</div>
 
-      <!-- Player -->
+      <!-- Player with autocomplete -->
       <div class="bt-cell-wrap">
         <input
           class="bt-input"
           type="text"
           [(ngModel)]="row.value"
-          (ngModelChange)="onInput()"
+          (ngModelChange)="onPlayerInput(row)"
+          (click)="$event.stopPropagation()"
           placeholder="—"
           (keydown)="onKeyDown($event, i)"
+          autocomplete="off"
         />
         <button class="bt-clear" [class.visible]="row.value"
-          (click)="clearCell(row)" tabindex="-1" aria-label="Clear">
+          (click)="clearCell(row); dismissSuggestions()" tabindex="-1" aria-label="Clear">
           <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
+        <!-- Suggestions dropdown -->
+        <div
+          *ngIf="activeSuggestionRowId === row.id && suggestions.length > 0"
+          class="suggestions-dropdown"
+          (click)="$event.stopPropagation()"
+        >
+          <div
+            *ngFor="let name of suggestions"
+            class="suggestion-item"
+            (click)="selectSuggestion(row, name)"
+          >{{ name }}</div>
+        </div>
       </div>
 
       <!-- Tag -->
@@ -162,6 +176,31 @@
         <div class="bt-res-cell old-tag">{{ r.oldTag }}</div>
         <div class="bt-res-new-tag" [style.color]="r.changed ? 'var(--accent)' : 'var(--text-muted)'">{{ r.newTag }}</div>
       </div>
+    </div>
+
+    <!-- Update Leaderboard button -->
+    <div class="bt-results-footer">
+      <button
+        class="lb-update-btn"
+        (click)="updateLeaderboard()"
+        [disabled]="leaderboardUpdateStatus === 'saving' || leaderboardUpdateStatus === 'done'"
+        [class.done]="leaderboardUpdateStatus === 'done'"
+        [class.error]="leaderboardUpdateStatus === 'error'"
+      >
+        <span *ngIf="leaderboardUpdateStatus === 'idle'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Update Leaderboard
+        </span>
+        <span *ngIf="leaderboardUpdateStatus === 'saving'">
+          <span class="saving-dot"></span> Updating…
+        </span>
+        <span *ngIf="leaderboardUpdateStatus === 'done'">✓ Leaderboard Updated</span>
+        <span *ngIf="leaderboardUpdateStatus === 'error'">⚠ Update Failed — Retry</span>
+      </button>
     </div>
   </div>
 </div>
