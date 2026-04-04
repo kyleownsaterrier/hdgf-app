@@ -66,6 +66,11 @@ const UPDATE_LEADERBOARD_ENTRY = /* GraphQL */`
     updateLeaderboardEntry(input: $input) { id playerName tagNum lastPlayed _version }
   }`;
 
+const DELETE_LEADERBOARD_ENTRY = /* GraphQL */`
+  mutation DeleteLeaderboardEntry($input: DeleteLeaderboardEntryInput!) {
+    deleteLeaderboardEntry(input: $input) { id _version }
+  }`;
+
 @Injectable({ providedIn: 'root' })
 export class DataService {
   doublesSaveStatus: SaveStatus = 'idle';
@@ -161,16 +166,50 @@ export class DataService {
   }
 
   /** Search leaderboard entries whose name contains the query (case-insensitive) */
-  async searchLeaderboardNames(query: string): Promise<string[]> {
+  async searchLeaderboardNames(query: string): Promise<LeaderboardEntry[]> {
     if (!query.trim()) return [];
     try {
       const all = await this.loadLeaderboard();
       const q = query.toLowerCase();
       return all
         .filter(e => e.playerName.toLowerCase().includes(q))
-        .map(e => e.playerName)
         .slice(0, 6);
     } catch { return []; }
+  }
+
+  /** Create or update a single leaderboard entry */
+  async upsertLeaderboardEntry(entry: { playerName: string; tagNum: number; lastPlayed: string }): Promise<LeaderboardEntry | null> {
+    const id = entry.playerName.trim().toLowerCase();
+    if (!id) return null;
+    try {
+      const existing = await this.getLeaderboardEntry(id);
+      if (existing) {
+        const res = await this.client.graphql({
+          query: UPDATE_LEADERBOARD_ENTRY,
+          variables: { input: { id, playerName: entry.playerName.trim(), tagNum: entry.tagNum, lastPlayed: entry.lastPlayed, _version: existing._version } }
+        }) as GraphQLResult<any>;
+        return res.data?.updateLeaderboardEntry ?? null;
+      } else {
+        const res = await this.client.graphql({
+          query: CREATE_LEADERBOARD_ENTRY,
+          variables: { input: { id, playerName: entry.playerName.trim(), tagNum: entry.tagNum, lastPlayed: entry.lastPlayed } }
+        }) as GraphQLResult<any>;
+        return res.data?.createLeaderboardEntry ?? null;
+      }
+    } catch (e) { console.error('[DataService] upsertLeaderboardEntry:', e); return null; }
+  }
+
+  /** Delete a leaderboard entry by id */
+  async deleteLeaderboardEntry(id: string): Promise<boolean> {
+    try {
+      const existing = await this.getLeaderboardEntry(id);
+      if (!existing) return true; // already gone
+      await this.client.graphql({
+        query: DELETE_LEADERBOARD_ENTRY,
+        variables: { input: { id, _version: existing._version } }
+      });
+      return true;
+    } catch (e) { console.error('[DataService] deleteLeaderboardEntry:', e); return false; }
   }
 
   private async getLeaderboardEntry(id: string): Promise<LeaderboardEntry | null> {

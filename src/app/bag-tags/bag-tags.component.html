@@ -88,10 +88,13 @@
           (click)="$event.stopPropagation()"
         >
           <div
-            *ngFor="let name of suggestions"
+            *ngFor="let entry of suggestions"
             class="suggestion-item"
-            (click)="selectSuggestion(row, name)"
-          >{{ name }}</div>
+            (click)="selectSuggestion(row, entry)"
+          >
+            <span class="suggestion-name">{{ entry.playerName }}</span>
+            <span class="suggestion-tag">#{{ entry.tagNum }}</span>
+          </div>
         </div>
       </div>
 

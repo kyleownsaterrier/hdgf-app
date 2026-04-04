@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DataService } from '../services/data.service';
+import { DataService, LeaderboardEntry } from '../services/data.service';
 
 export interface BagTagRow {
   id: number;
@@ -33,7 +33,7 @@ export class BagTagsComponent implements OnInit {
   leaderboardUpdateStatus: 'idle' | 'saving' | 'done' | 'error' = 'idle';
 
   // Autocomplete state
-  suggestions: string[] = [];
+  suggestions: LeaderboardEntry[] = [];
   activeSuggestionRowId: number | null = null;
 
   private data = inject(DataService);
@@ -85,17 +85,30 @@ export class BagTagsComponent implements OnInit {
 
   async onPlayerInput(row: BagTagRow): Promise<void> {
     this.save();
-    if (row.value.trim().length < 1) {
+    const trimmed = row.value.trim();
+    if (!trimmed) {
       this.suggestions = [];
       this.activeSuggestionRowId = null;
       return;
     }
     this.activeSuggestionRowId = row.id;
-    this.suggestions = await this.data.searchLeaderboardNames(row.value);
+    this.suggestions = await this.data.searchLeaderboardNames(trimmed);
+
+    // Exact match (case-insensitive) → auto-set tag number
+    const exact = this.suggestions.find(
+      s => s.playerName.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (exact) {
+      row.tagNum = exact.tagNum;
+      this.suggestions = [];
+      this.activeSuggestionRowId = null;
+      this.save();
+    }
   }
 
-  selectSuggestion(row: BagTagRow, name: string): void {
-    row.value = name;
+  selectSuggestion(row: BagTagRow, entry: LeaderboardEntry): void {
+    row.value = entry.playerName;
+    row.tagNum = entry.tagNum;   // apply leaderboard tag number
     this.suggestions = [];
     this.activeSuggestionRowId = null;
     this.save();

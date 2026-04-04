@@ -206,9 +206,12 @@
   cursor: pointer;
   border-bottom: 1px solid var(--border);
   transition: background 0.1s;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
 .suggestion-item:last-child { border-bottom: none; }
 .suggestion-item:active { background: var(--accent-glow); color: var(--accent); }
+.suggestion-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suggestion-tag { font-size: 18px; color: var(--accent); font-weight: 700; flex-shrink: 0; }
 
 /* ── Results footer / Update Leaderboard button ─── */
 .bt-results-footer {
