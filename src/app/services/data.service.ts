@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { generateClient } from 'aws-amplify/api';
 import type { GraphQLResult } from '@aws-amplify/api-graphql';
-import type { TableRow } from '../editable-table/editable-table.component';
+import type { TableRow } from '../doubles/doubles.component';
 import type { BagTagRow } from '../bag-tags/bag-tags.component';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';

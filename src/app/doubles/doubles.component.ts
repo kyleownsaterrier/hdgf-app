@@ -10,13 +10,13 @@ export interface TableRow {
 }
 
 @Component({
-  selector: 'app-editable-table',
+  selector: 'app-doubles',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './editable-table.component.html',
-  styleUrls: ['./editable-table.component.css']
+  templateUrl: './doubles.component.html',
+  styleUrls: ['./doubles.component.css']
 })
-export class EditableTableComponent implements OnInit {
+export class DoublesComponent implements OnInit {
   rows: TableRow[] = [];
   nextId = 1;
   shuffleCount = 0;
