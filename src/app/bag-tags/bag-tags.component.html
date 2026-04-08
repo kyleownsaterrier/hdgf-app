@@ -22,6 +22,12 @@
       </div>
     </div>
   </div>
+
+  <!-- League Toggle -->
+  <div class="league-toggle">
+    <button class="league-btn" [class.active]="activeLeague === 'hdgf'" (click)="setLeague('hdgf')">HDGF</button>
+    <button class="league-btn" [class.active]="activeLeague === 'lavalinks'" (click)="setLeague('lavalinks')">Lavalinks</button>
+  </div>
 </div>
 
 <!-- Action Bar -->
@@ -196,7 +202,7 @@
             <circle cx="9" cy="7" r="4"/>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
-          Update Leaderboard
+          Update {{ leagueLabel }} Leaderboard
         </span>
         <span *ngIf="leaderboardUpdateStatus === 'saving'">
           <span class="saving-dot"></span> Updating…

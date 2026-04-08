@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService, LeaderboardEntry } from '../services/data.service';
+import { LeagueService, LEAGUES } from '../services/league.service';
+import type { League } from '../services/league.service';
 
 export interface BagTagRow {
   id: number;
@@ -31,25 +33,42 @@ export class BagTagsComponent implements OnInit {
   showResults = false;
   results: AssignmentResult[] = [];
   leaderboardUpdateStatus: 'idle' | 'saving' | 'done' | 'error' = 'idle';
-
-  // Autocomplete state
   suggestions: LeaderboardEntry[] = [];
   activeSuggestionRowId: number | null = null;
+  readonly leagues = LEAGUES;
 
   private data = inject(DataService);
+  private leagueSvc = inject(LeagueService);
+
   get saveStatus() { return this.data.bagTagsSaveStatus; }
+  get activeLeague(): League { return this.leagueSvc.current; }
+  get leagueLabel(): string { return LEAGUES[this.activeLeague].label; }
 
   async ngOnInit(): Promise<void> {
-    const saved = await this.data.loadBagTags();
+    await this.loadForLeague();
+  }
+
+  async setLeague(league: League): Promise<void> {
+    if (league === this.activeLeague) return;
+    this.dismissSuggestions();
+    this.showResults = false;
+    this.leagueSvc.setLeague(league);
+    await this.loadForLeague();
+  }
+
+  private async loadForLeague(): Promise<void> {
+    const saved = await this.data.loadBagTags(this.activeLeague);
     if (saved && saved.length > 0) {
       this.rows = saved;
       this.nextId = Math.max(...saved.map(r => r.id)) + 1;
     } else {
+      this.rows = [];
+      this.nextId = 1;
       this.addRow();
     }
   }
 
-  private save(): void { this.data.autoSaveBagTags(this.rows); }
+  private save(): void { this.data.autoSaveBagTags(this.rows, this.activeLeague); }
   onInput(): void { this.save(); }
 
   addRow(value = '', score = ''): void {
@@ -86,18 +105,10 @@ export class BagTagsComponent implements OnInit {
   async onPlayerInput(row: BagTagRow): Promise<void> {
     this.save();
     const trimmed = row.value.trim();
-    if (!trimmed) {
-      this.suggestions = [];
-      this.activeSuggestionRowId = null;
-      return;
-    }
+    if (!trimmed) { this.suggestions = []; this.activeSuggestionRowId = null; return; }
     this.activeSuggestionRowId = row.id;
-    this.suggestions = await this.data.searchLeaderboardNames(trimmed);
-
-    // Exact match (case-insensitive) → auto-set tag number
-    const exact = this.suggestions.find(
-      s => s.playerName.toLowerCase() === trimmed.toLowerCase()
-    );
+    this.suggestions = await this.data.searchLeaderboardNames(trimmed, this.activeLeague);
+    const exact = this.suggestions.find(s => s.playerName.toLowerCase() === trimmed.toLowerCase());
     if (exact) {
       row.tagNum = exact.tagNum;
       this.suggestions = [];
@@ -108,16 +119,13 @@ export class BagTagsComponent implements OnInit {
 
   selectSuggestion(row: BagTagRow, entry: LeaderboardEntry): void {
     row.value = entry.playerName;
-    row.tagNum = entry.tagNum;   // apply leaderboard tag number
+    row.tagNum = entry.tagNum;
     this.suggestions = [];
     this.activeSuggestionRowId = null;
     this.save();
   }
 
-  dismissSuggestions(): void {
-    this.suggestions = [];
-    this.activeSuggestionRowId = null;
-  }
+  dismissSuggestions(): void { this.suggestions = []; this.activeSuggestionRowId = null; }
 
   // ── Assign Tags ─────────────────────────────────────────────────────────────
 
@@ -142,23 +150,15 @@ export class BagTagsComponent implements OnInit {
 
   async updateLeaderboard(): Promise<void> {
     this.leaderboardUpdateStatus = 'saving';
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    const assignments = this.results.map(r => ({
-      playerName: r.player.value,
-      tagNum: r.newTag
-    }));
+    const today = new Date().toISOString().split('T')[0];
+    const assignments = this.results.map(r => ({ playerName: r.player.value, tagNum: r.newTag }));
     try {
-      await this.data.updateLeaderboard(assignments, today);
+      await this.data.updateLeaderboard(assignments, today, this.activeLeague);
       this.leaderboardUpdateStatus = 'done';
-    } catch {
-      this.leaderboardUpdateStatus = 'error';
-    }
+    } catch { this.leaderboardUpdateStatus = 'error'; }
   }
 
-  closeResults(): void {
-    this.showResults = false;
-    this.leaderboardUpdateStatus = 'idle';
-  }
+  closeResults(): void { this.showResults = false; this.leaderboardUpdateStatus = 'idle'; }
 
   onKeyDown(event: KeyboardEvent, rowIndex: number): void {
     if (event.key === 'Escape') { this.dismissSuggestions(); return; }
@@ -168,9 +168,7 @@ export class BagTagsComponent implements OnInit {
       if (rowIndex === this.rows.length - 1) {
         this.addRow();
         setTimeout(() => this.focusRow(rowIndex + 1), 10);
-      } else {
-        this.focusRow(rowIndex + 1);
-      }
+      } else { this.focusRow(rowIndex + 1); }
     }
   }
 

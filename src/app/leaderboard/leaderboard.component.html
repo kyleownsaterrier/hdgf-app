@@ -18,6 +18,12 @@
       </button>
     </div>
   </div>
+
+  <!-- League Toggle -->
+  <div class="league-toggle">
+    <button class="league-btn" [class.active]="activeLeague === 'hdgf'" (click)="setLeague('hdgf')">HDGF</button>
+    <button class="league-btn" [class.active]="activeLeague === 'lavalinks'" (click)="setLeague('lavalinks')">Lavalinks</button>
+  </div>
 </div>
 
 <!-- Column Headers -->
